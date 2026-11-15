@@ -1,0 +1,44 @@
+#include <winver.h>
+#include "archiwa-build.h"
+
+1 ICON "../packaging/assets/Archiwa.ico"
+
+LANGUAGE 9, 1
+STRINGTABLE
+BEGIN
+    201 "Archiwa - Extract here"
+    202 "Archiwa - Pack with a profile"
+END
+
+LANGUAGE 21, 1
+#pragma code_page(65001)
+STRINGTABLE
+BEGIN
+    201 "Archiwa - Rozpakuj tutaj"
+    202 "Archiwa - Spakuj według profilu"
+END
+
+LANGUAGE 9, 1
+1 VERSIONINFO
+FILEVERSION ARCHIWA_VERSION_FIELDS
+PRODUCTVERSION ARCHIWA_VERSION_FIELDS
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "PoloQP"
+            VALUE "FileDescription", "Archiwa"
+            VALUE "FileVersion", ARCHIWA_VERSION
+            VALUE "ProductName", "Archiwa"
+            VALUE "ProductVersion", ARCHIWA_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

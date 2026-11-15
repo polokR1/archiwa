@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+         IgnorableNamespaces="uap rescap">
+  <Identity Name="Archiwa.Preview" Publisher="CN=Archiwa Preview"
+            Version="1.0.0.0" ProcessorArchitecture="x64"/>
+  <Properties>
+    <DisplayName>Archiwa</DisplayName>
+    <PublisherDisplayName>Archiwa Preview</PublisherDisplayName>
+    <Description>Offline archive manager with ZIP profiles and batch extraction.</Description>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.26100.0" MaxVersionTested="10.0.26300.0"/>
+  </Dependencies>
+  <Resources>
+    <Resource Language="en-us"/>
+    <Resource Language="pl-pl"/>
+  </Resources>
+  <Applications>
+    <Application Id="Archiwa" Executable="Archiwa.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="Archiwa" Description="Archiwa"
+                          Square44x44Logo="Assets\Square44x44Logo.png"
+                          Square150x150Logo="Assets\Square150x150Logo.png"
+                          BackgroundColor="transparent"/>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="archiwa.archive">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.zip</uap:FileType>
+              <uap:FileType>.rar</uap:FileType>
+              <uap:FileType>.7z</uap:FileType>
+              <uap:FileType>.tar</uap:FileType>
+              <uap:FileType>.gz</uap:FileType>
+              <uap:FileType>.tgz</uap:FileType>
+              <uap:FileType>.bz2</uap:FileType>
+              <uap:FileType>.xz</uap:FileType>
+              <uap:FileType>.zst</uap:FileType>
+              <uap:FileType>.cab</uap:FileType>
+              <uap:FileType>.iso</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities><rescap:Capability Name="runFullTrust"/></Capabilities>
+</Package>
