@@ -7,7 +7,9 @@ param(
     [string]$StoreDisplayName = 'Archiwa',
     [string]$SupportEmail,
     [string]$SupportUrl,
-    [string]$OutputDirectory
+    [string]$OutputDirectory,
+    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+$')][string]$MsvcVersion,
+    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')][string]$WindowsSdkVersion
 )
 
 $ErrorActionPreference = 'Stop'
@@ -16,13 +18,16 @@ $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer
 $installation = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 if (!$installation) { throw 'Install the Visual Studio C++ desktop build tools.' }
 $toolchain = Get-ChildItem -Directory -LiteralPath (Join-Path $installation 'VC\Tools\MSVC') |
+    Where-Object { !$MsvcVersion -or $_.Name -eq $MsvcVersion } |
     Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
 $kits = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10'
 $sdk = Get-ChildItem -Directory -LiteralPath (Join-Path $kits 'Include') |
+    Where-Object { !$WindowsSdkVersion -or $_.Name -eq $WindowsSdkVersion } |
     Sort-Object { [version]$_.Name } -Descending |
     Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'um\Windows.h') } |
     Select-Object -First 1
 if (!$toolchain -or !$sdk) { throw 'The MSVC toolchain or Windows SDK could not be found.' }
+Write-Host "MSVC: $($toolchain.Name); Windows SDK: $($sdk.Name)"
 
 $msvcBin = Join-Path $toolchain.FullName 'bin\Hostx64\x64'
 $sdkBin = Join-Path $kits "bin\$($sdk.Name)\x64"
@@ -117,6 +122,7 @@ if ($Package) {
         Publisher = $StorePublisher
         PublisherDisplayName = $StorePublisherDisplayName
         DisplayName = $StoreDisplayName
+        WindowsSdkVersion = $sdk.Name
     }
     & (Join-Path $PSScriptRoot 'packaging\package-msix.ps1') @storeOptions
     $releaseFiles += @($msi, $msix)
@@ -128,3 +134,12 @@ foreach ($releaseFile in $releaseFiles) {
     if ($releaseFile -ne $destination) { Move-Item -LiteralPath $releaseFile -Destination $destination -Force }
     Write-Host $destination
 }
+$environment = [ordered]@{
+    msvcVersion = $toolchain.Name
+    compilerVersion = (Get-Item -LiteralPath $compilerPath).VersionInfo.FileVersion
+    windowsSdkVersion = $sdk.Name
+    resourceCompilerVersion = (Get-Item -LiteralPath $resources).VersionInfo.FileVersion
+    visualStudioInstallation = $installation
+    version = $release
+}
+$environment | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $build 'build-environment.json') -Encoding utf8
