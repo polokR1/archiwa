@@ -22,6 +22,22 @@ Parametry `-SupportEmail` i `-SupportUrl` ustawiają publiczny adres e-mail i st
 
 Skrypt `.\build.ps1 -Smoke` buduje też wersję instalatora do sprawdzenia kopiowania plików, skrótu, ponownej instalacji i usunięcia w tymczasowym folderze. Po takiej kompilacji uruchom test interfejsu poleceniem `python .\tests\verify-windows.py` z folderu `Archiwa`. Dla własnego katalogu wynikowego przekaż jego ścieżkę jako argument testu.
 
+## Ciągła weryfikacja Windows
+
+Workflow `Windows build and verification` buduje każdy pull request oraz zmiany gałęzi `main` i `ci/**` na `windows-2025`. Akcje są przypięte do pełnych identyfikatorów commitów. Kompilacja wybiera MSVC `14.44.35207` i Windows SDK `10.0.26100.0`, a Python `3.12.10` obsługuje pakowanie i testy. Projekt korzysta wyłącznie z bibliotek systemowych oraz standardowej biblioteki Pythona; nie wymaga pobierania pakietów NuGet ani pip.
+
+Po zainstalowaniu wskazanych narzędzi pełna lokalna kontrola z czystego, zapisanego w Git klonu wygląda tak:
+
+```powershell
+.\ci\verify.ps1 -RequireRuntime
+```
+
+Skrypt sprawdza wersję i architekturę x64, porównuje rzeczywistą zawartość instalatorów EXE, MSI i MSIX z nowo zbudowanym `Archiwa.exe` oraz sprawdza cykl instalacji testowej. Następnie uruchamia istniejące testy interfejsu i archiwów korzystające z eksportów `archiveint.dll`. CI używa `-RequireRuntime`: brak silnika lub awaria testu kończy kontrolę błędem. Tego samego parametru należy używać przy walidacji wydania na obsługiwanym Windows 11. Pominięcie tego parametru pozwala jedynie diagnostycznie sprawdzić pakiety na systemie bez silnika; pominięcie testów aplikacji jest wtedy jawnie zapisane w pochodzeniu artefaktów.
+
+Artefakt CI zawiera nowe pliki aplikacji i instalatorów, `SHA256SUMS.txt` oraz `build-provenance.json`: commit źródłowy, wersje narzędzi, identyfikator obrazu systemu, adres uruchomienia, wyniki kontroli oraz rozmiary i sumy SHA-256. Logi są zachowywane także po niepowodzeniu. Aby wybrać inne zainstalowane narzędzia, przekaż `-MsvcVersion` i `-WindowsSdkVersion` do `build.ps1` lub `ci\verify.ps1`.
+
+Jest to powtarzalna procedura budowania z zapisanym pochodzeniem plików. Identyczność bajtowa kolejnych kompilacji nie została wykazana: znaczniki czasu PE i losowy identyfikator pakietu MSI mogą zmieniać wynik. Obraz `windows-2025` również otrzymuje aktualizacje. Artefakty są niepodpisane, a MSIX nadal ma roboczą tożsamość `Store-Preview`. CI niczego nie publikuje ani nie zmienia istniejącego wydania `v1.2.0`; publikacja nowego instalatora wymaga nowego numeru wersji oraz osobnej weryfikacji na Windows 11.
+
 ## Microsoft Store
 
 MSIX z nazwą `Store-Preview` zawiera roboczą tożsamość techniczną. Po rezerwacji nazwy aplikacji skopiuj wartości **Package/Identity/Name**, **Package/Identity/Publisher** oraz **Package/Properties/PublisherDisplayName** ze strony tożsamości produktu w Partner Center.

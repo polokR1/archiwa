@@ -351,6 +351,7 @@ with tempfile.TemporaryDirectory(prefix="validation-",dir=build) as tmp:
         choose(lang,1)
         set_text(widget(window,113),str(dest))
         button(window,114)
+        wait_until(lambda: status_has(window,"Settings saved."),"Save preferences completed")
         wait_until(lambda: title(widget(window,104))=="Settings","English after saving")
         assert (area / "ArchiwaPreferences.dat").is_file(), "Preferences file missing"
         button(window,103)

@@ -5,7 +5,8 @@ param(
     [string]$Publisher,
     [string]$PublisherDisplayName,
     [string]$DisplayName = 'Archiwa',
-    [switch]$UnsignedTest
+    [switch]$UnsignedTest,
+    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')][string]$WindowsSdkVersion
 )
 $ErrorActionPreference = 'Stop'
 
@@ -19,6 +20,7 @@ if ($UnsignedTest -and $storeFields.Count -gt 0) {
 
 $sdkRoot = Join-Path ([Environment]::GetEnvironmentVariable('ProgramFiles(x86)')) 'Windows Kits\10\bin'
 $sdk = Get-ChildItem -LiteralPath $sdkRoot -Directory |
+    Where-Object { !$WindowsSdkVersion -or $_.Name -eq $WindowsSdkVersion } |
     Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'x64\makeappx.exe') } |
     Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
 if (!$sdk) { throw 'MakeAppx.exe from the Windows SDK is required.' }
