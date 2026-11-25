@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: '3.12.10'
       - name: Build, verify packages and test supported runtime
-        run: ./ci/verify.ps1
+        run: ./ci/verify.ps1 -RequireRuntime
       - name: Upload verified binaries and provenance
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

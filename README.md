@@ -32,7 +32,7 @@ Po zainstalowaniu wskazanych narzędzi pełna lokalna kontrola z czystego, zapis
 .\ci\verify.ps1 -RequireRuntime
 ```
 
-Skrypt sprawdza wersję i architekturę x64, porównuje rzeczywistą zawartość instalatorów EXE, MSI i MSIX z nowo zbudowanym `Archiwa.exe` oraz sprawdza cykl instalacji testowej. Następnie uruchamia istniejące testy interfejsu i archiwów, jeśli system udostępnia wymagane eksporty `archiveint.dll`. Brak silnika na obrazie Windows Server jest jawnie zapisany jako pominięcie testów aplikacji; `-RequireRuntime` zamienia ten stan w błąd i jest wymagany przy walidacji wydania na obsługiwanym Windows 11. Awaria testu przy dostępnym silniku zawsze kończy kontrolę błędem.
+Skrypt sprawdza wersję i architekturę x64, porównuje rzeczywistą zawartość instalatorów EXE, MSI i MSIX z nowo zbudowanym `Archiwa.exe` oraz sprawdza cykl instalacji testowej. Następnie uruchamia istniejące testy interfejsu i archiwów korzystające z eksportów `archiveint.dll`. CI używa `-RequireRuntime`: brak silnika lub awaria testu kończy kontrolę błędem. Tego samego parametru należy używać przy walidacji wydania na obsługiwanym Windows 11. Pominięcie tego parametru pozwala jedynie diagnostycznie sprawdzić pakiety na systemie bez silnika; pominięcie testów aplikacji jest wtedy jawnie zapisane w pochodzeniu artefaktów.
 
 Artefakt CI zawiera nowe pliki aplikacji i instalatorów, `SHA256SUMS.txt` oraz `build-provenance.json`: commit źródłowy, wersje narzędzi, identyfikator obrazu systemu, adres uruchomienia, wyniki kontroli oraz rozmiary i sumy SHA-256. Logi są zachowywane także po niepowodzeniu. Aby wybrać inne zainstalowane narzędzia, przekaż `-MsvcVersion` i `-WindowsSdkVersion` do `build.ps1` lub `ci\verify.ps1`.
 
